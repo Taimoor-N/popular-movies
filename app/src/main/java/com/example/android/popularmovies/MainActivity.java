@@ -4,8 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
     private RecyclerView mRecyclerView;
 
@@ -41,6 +42,15 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mRecyclerView.setAdapter(new MovieAdapter(sampleImages));
+        mRecyclerView.setAdapter(new MovieAdapter(sampleImages, this));
+    }
+
+    /**
+     * This method handles RecyclerView item clicks.
+     * @param movieImageUrl URL of the image clicked.
+     */
+    @Override
+    public void onClick(String movieImageUrl) {
+        Toast.makeText(this, movieImageUrl, Toast.LENGTH_LONG).show();
     }
 }
