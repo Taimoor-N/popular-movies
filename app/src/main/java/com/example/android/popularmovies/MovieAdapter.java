@@ -9,25 +9,26 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
-    private String[] mMovieImages;
+    private Movie[] mMovies;
     private final MovieAdapterOnClickHandler mClickHandler;
 
     public interface MovieAdapterOnClickHandler {
-        void onClick(String movieImageUrl);
+        void onClick(Movie movie);
     }
 
     /**
      * Constructor for MovieAdapter.
-     * @param movieImages The urls for the movie posters.
+     * @param movies Movies to be displayed.
      * @param clickHandler The onClick handler for MovieAdapter. This is called when an
      *                     item is clicked.
      */
-    public MovieAdapter(String[] movieImages, MovieAdapterOnClickHandler clickHandler) {
-        mMovieImages = movieImages;
+    public MovieAdapter(Movie[] movies, MovieAdapterOnClickHandler clickHandler) {
+        mMovies = movies;
         mClickHandler = clickHandler;
     }
 
@@ -46,8 +47,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String movieImageUrl = mMovieImages[adapterPosition];
-            mClickHandler.onClick(movieImageUrl);
+            Movie movie = mMovies[adapterPosition];
+            mClickHandler.onClick(movie);
         }
     }
 
@@ -77,7 +78,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public void onBindViewHolder(@NonNull MovieAdapterViewHolder movieAdapterViewHolder, int position) {
-        String imageForThisItem = mMovieImages[position];
+        String imageForThisItem = mMovies[position].getImage();
         Context context = movieAdapterViewHolder.mMovieImageView.getContext();
         Picasso.with(context)
                 .load(imageForThisItem)
@@ -91,9 +92,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public int getItemCount() {
-        if (mMovieImages == null) {
+        if (mMovies == null) {
             return 0;
         }
-        return mMovieImages.length;
+        return mMovies.length;
     }
 }
