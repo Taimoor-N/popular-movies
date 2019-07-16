@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="movie_data_not_available">No movie data available</string>
+    <string name="movie_rating_text">%.1f/10</string>
+    <string name="movie_rating_title">Rating:</string>
+    <string name="movie_release_date_title">Released:</string>
+    <string name="movie_duration_in_minutes">%dmin</string>
+    <string name="movie_duration_title">Duration:</string>
 </resources>
