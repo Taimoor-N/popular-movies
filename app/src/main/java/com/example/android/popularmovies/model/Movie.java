@@ -13,13 +13,12 @@ public class Movie implements Serializable {
 
     public Movie() {}
 
-    public Movie(String title, String image, String plot, double rating, String releaseDate, int duration) {
+    public Movie(String title, String image, String plot, double rating, String releaseDate) {
         this.title = title;
         this.image = image;
         this.plot = plot;
         this.rating = rating;
         this.releaseDate = releaseDate;
-        this.duration = duration;
     }
 
     public void setTitle(String title) {
@@ -60,14 +59,6 @@ public class Movie implements Serializable {
 
     public String getReleaseDate() {
         return releaseDate;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public int getDuration() {
-        return duration;
     }
 
 }
