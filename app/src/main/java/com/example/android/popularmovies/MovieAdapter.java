@@ -12,9 +12,11 @@ import android.widget.ImageView;
 import com.example.android.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
-    private Movie[] mMovies;
+    private ArrayList<Movie> mMovies;
     private final MovieAdapterOnClickHandler mClickHandler;
 
     public interface MovieAdapterOnClickHandler {
@@ -23,12 +25,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     /**
      * Constructor for MovieAdapter.
-     * @param movies Movies to be displayed.
      * @param clickHandler The onClick handler for MovieAdapter. This is called when an
      *                     item is clicked.
      */
-    public MovieAdapter(Movie[] movies, MovieAdapterOnClickHandler clickHandler) {
-        mMovies = movies;
+    public MovieAdapter(MovieAdapterOnClickHandler clickHandler) {
         mClickHandler = clickHandler;
     }
 
@@ -47,7 +47,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Movie movie = mMovies[adapterPosition];
+            Movie movie = mMovies.get(adapterPosition);
             mClickHandler.onClick(movie);
         }
     }
@@ -78,7 +78,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public void onBindViewHolder(@NonNull MovieAdapterViewHolder movieAdapterViewHolder, int position) {
-        String imageForThisItem = mMovies[position].getImage();
+        String imageForThisItem = mMovies.get(position).getImage();
         Context context = movieAdapterViewHolder.mMovieImageView.getContext();
         Picasso.with(context)
                 .load(imageForThisItem)
@@ -95,6 +95,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         if (mMovies == null) {
             return 0;
         }
-        return mMovies.length;
+        return mMovies.size();
+    }
+
+    public void setMovieData(ArrayList<Movie> movieData) {
+        mMovies = movieData;
+        notifyDataSetChanged();
     }
 }

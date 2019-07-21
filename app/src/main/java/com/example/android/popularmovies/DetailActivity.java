@@ -16,7 +16,6 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mMoviePlot;
     private TextView mMovieRating;
     private TextView mMovieReleaseDate;
-    private TextView mMovieDuration;
 
     private ImageView mMovieImage;
 
@@ -30,7 +29,6 @@ public class DetailActivity extends AppCompatActivity {
         mMoviePlot = findViewById(R.id.tv_movie_plot);
         mMovieRating = findViewById(R.id.tv_movie_rating);
         mMovieReleaseDate = findViewById(R.id.tv_movie_release_date);
-        mMovieDuration = findViewById(R.id.tv_movie_duration);
         mMovieImage = findViewById(R.id.iv_movie_image);
 
         Intent intent = getIntent();
@@ -54,16 +52,15 @@ public class DetailActivity extends AppCompatActivity {
         if (notNullOrEmpty(movie.getPlot())) {
             mMoviePlot.setText(movie.getPlot());
         } else {
-            mMovieTitle.setText("N/A");
+            mMoviePlot.setText("N/A");
         }
         if (notNullOrEmpty(movie.getReleaseDate())) {
             mMovieReleaseDate.setText(movie.getReleaseDate().substring(0, 4));
         } else {
-            mMovieTitle.setText("N/A");
+            mMovieReleaseDate.setText("N/A");
         }
 
         mMovieRating.setText(getString(R.string.movie_rating_text, movie.getRating()));
-        mMovieDuration.setText(getString(R.string.movie_duration_in_minutes, movie.getDuration()));
 
         Picasso.with(this)
                 .load(movie.getImage())
