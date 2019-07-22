@@ -24,7 +24,7 @@ public class JsonUtils {
         final String JSON_RATING = "vote_average";
         final String JSON_RELEASE_DATE = "release_date";
 
-        final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w780";
+        final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
         String title; //Movie title
         String image; //Movie image URL

@@ -9,6 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.android.popularmovies.model.Movie;
 import com.example.android.popularmovies.utilities.JsonUtils;
@@ -22,6 +25,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public static final String INTENT_MOVIE_DATA = "INTENT_MOVIE_DATA";
 
     private RecyclerView mRecyclerView;
+    private TextView mErrorMessageDisplay;
+    private ProgressBar mLoadingIndicator;
+
     private MovieAdapter mMovieAdapter;
 
     @Override
@@ -30,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setContentView(R.layout.activity_main);
 
         mRecyclerView = findViewById(R.id.rv_movies);
+        mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
+        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -58,10 +66,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(intent);
     }
 
+    /**
+     * This method will make the movie search results and hide the error message
+     */
+    public void showMovieResults() {
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * The method will show the error message and hide movie search results
+     */
+    public void showErrorMessage() {
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
     private class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
         @Override
         protected void onPreExecute() {
+            mLoadingIndicator.setVisibility(View.VISIBLE);
             super.onPreExecute();
         }
 
@@ -79,8 +104,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         @Override
         protected void onPostExecute(ArrayList<Movie> movies) {
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (movies != null) {
+                showMovieResults();
                 mMovieAdapter.setMovieData(movies);
+            } else {
+                showErrorMessage();
             }
         }
     }

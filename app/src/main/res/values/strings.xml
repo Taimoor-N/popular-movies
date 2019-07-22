@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="error_message">An error has occurred. Please check your network connection and try again by going to options menu and selecting a sort option.</string>
     <string name="menu_sort_popular">Sort by Popular</string>
     <string name="menu_sort_top_rated">Sort by Top Rated</string>
     <string name="movie_data_not_available">No movie data available</string>
-    <string name="movie_rating_text">%.1f/10</string>
-    <string name="movie_rating_title">Rating:</string>
-    <string name="movie_release_date_title">Released:</string>
+    <string name="movie_rating_text">Rating: %.1f/10</string>
+    <string name="movie_detail_title">%s (%s)</string>
 </resources>

@@ -15,7 +15,6 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mMovieTitle;
     private TextView mMoviePlot;
     private TextView mMovieRating;
-    private TextView mMovieReleaseDate;
 
     private ImageView mMovieImage;
 
@@ -28,7 +27,6 @@ public class DetailActivity extends AppCompatActivity {
         mMovieTitle = findViewById(R.id.tv_movie_title);
         mMoviePlot = findViewById(R.id.tv_movie_plot);
         mMovieRating = findViewById(R.id.tv_movie_rating);
-        mMovieReleaseDate = findViewById(R.id.tv_movie_release_date);
         mMovieImage = findViewById(R.id.iv_movie_image);
 
         Intent intent = getIntent();
@@ -44,7 +42,11 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI(Movie movie) {
-        if (notNullOrEmpty(movie.getTitle())) {
+        if (notNullOrEmpty(movie.getTitle()) && notNullOrEmpty(movie.getReleaseDate())) {
+            String title = movie.getTitle();
+            String releaseDate = movie.getReleaseDate().substring(0, 4);
+            mMovieTitle.setText(getString(R.string.movie_detail_title, title, releaseDate));
+        } else if (notNullOrEmpty(movie.getTitle())) {
             mMovieTitle.setText(movie.getTitle());
         } else {
             mMovieTitle.setText("N/A");
@@ -53,11 +55,6 @@ public class DetailActivity extends AppCompatActivity {
             mMoviePlot.setText(movie.getPlot());
         } else {
             mMoviePlot.setText("N/A");
-        }
-        if (notNullOrEmpty(movie.getReleaseDate())) {
-            mMovieReleaseDate.setText(movie.getReleaseDate().substring(0, 4));
-        } else {
-            mMovieReleaseDate.setText("N/A");
         }
 
         mMovieRating.setText(getString(R.string.movie_rating_text, movie.getRating()));
