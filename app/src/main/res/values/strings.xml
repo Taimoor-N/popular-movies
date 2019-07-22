@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="menu_sort_popular">Sort by Popular</string>
+    <string name="menu_sort_top_rated">Sort by Top Rated</string>
     <string name="movie_data_not_available">No movie data available</string>
     <string name="movie_rating_text">%.1f/10</string>
     <string name="movie_rating_title">Rating:</string>

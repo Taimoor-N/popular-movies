@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.example.android.popularmovies.model.Movie;
 import com.example.android.popularmovies.utilities.JsonUtils;
@@ -34,14 +37,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
-        loadMovieData();
+        loadMovieData(NetworkUtils.SORT_POPULAR);
     }
 
     /**
      * This method will get movie data in the background
      */
-    private void loadMovieData() {
-        new FetchMovieTask().execute();
+    private void loadMovieData(String sortCriteria) {
+        new FetchMovieTask().execute(sortCriteria);
     }
 
     /**
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(intent);
     }
 
-    private class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
+    private class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
         @Override
         protected void onPreExecute() {
@@ -63,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected ArrayList<Movie> doInBackground(Void... voids) {
-            URL movieSearchUrl = NetworkUtils.buildURL(NetworkUtils.SORT_POPULAR);
+        protected ArrayList<Movie> doInBackground(String... sortCriteria) {
+            URL movieSearchUrl = NetworkUtils.buildURL(sortCriteria[0]);
             try {
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
                 return JsonUtils.parseMovieJson(jsonMovieResponse);
@@ -80,5 +83,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mMovieAdapter.setMovieData(movies);
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.movies, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_sort_popular) {
+            loadMovieData(NetworkUtils.SORT_POPULAR);
+            return true;
+        } else if (id == R.id.action_sort_top_rated) {
+            loadMovieData(NetworkUtils.SORT_TOP_RATED);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

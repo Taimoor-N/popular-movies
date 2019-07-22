@@ -19,7 +19,7 @@
             android:text="Title Placeholder"
             android:layout_gravity="center_vertical|start"
             android:textColor="@android:color/white"
-            android:textSize="40sp"/>
+            android:textSize="32sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
