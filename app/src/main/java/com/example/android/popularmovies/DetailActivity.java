@@ -1,22 +1,18 @@
 package com.example.android.popularmovies;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.popularmovies.databinding.ActivityDetailBinding;
 import com.example.android.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private TextView mMovieTitle;
-    private TextView mMoviePlot;
-    private TextView mMovieRating;
-
-    private ImageView mMovieImage;
+    ActivityDetailBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +20,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        mMovieTitle = findViewById(R.id.tv_movie_title);
-        mMoviePlot = findViewById(R.id.tv_movie_plot);
-        mMovieRating = findViewById(R.id.tv_movie_rating);
-        mMovieImage = findViewById(R.id.iv_movie_image);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
         Intent intent = getIntent();
         Object movieObj = intent.getSerializableExtra(MainActivity.INTENT_MOVIE_DATA);
@@ -45,24 +38,24 @@ public class DetailActivity extends AppCompatActivity {
         if (notNullOrEmpty(movie.getTitle()) && notNullOrEmpty(movie.getReleaseDate())) {
             String title = movie.getTitle();
             String releaseDate = movie.getReleaseDate().substring(0, 4);
-            mMovieTitle.setText(getString(R.string.movie_detail_title, title, releaseDate));
+            mBinding.tvMovieTitle.setText(getString(R.string.movie_detail_title, title, releaseDate));
         } else if (notNullOrEmpty(movie.getTitle())) {
-            mMovieTitle.setText(movie.getTitle());
+            mBinding.tvMovieTitle.setText(movie.getTitle());
         } else {
-            mMovieTitle.setText("N/A");
+            mBinding.tvMovieTitle.setText(getString(R.string.unavailable_movie_title));
         }
         if (notNullOrEmpty(movie.getPlot())) {
-            mMoviePlot.setText(movie.getPlot());
+            mBinding.tvMoviePlot.setText(movie.getPlot());
         } else {
-            mMoviePlot.setText("N/A");
+            mBinding.tvMoviePlot.setText(getString(R.string.unavailable_movie_plot));
         }
 
-        mMovieRating.setText(getString(R.string.movie_rating_text, movie.getRating()));
+        mBinding.tvMovieRating.setText(getString(R.string.movie_rating_text, movie.getRating()));
 
         Picasso.with(this)
                 .load(movie.getImage())
                 .error(R.drawable.no_image_available)
-                .into(mMovieImage);
+                .into(mBinding.ivMovieImage);
     }
 
     private boolean notNullOrEmpty(String text) {
