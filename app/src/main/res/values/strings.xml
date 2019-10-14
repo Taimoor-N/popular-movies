@@ -6,4 +6,9 @@
     <string name="movie_data_not_available">No movie data available</string>
     <string name="movie_rating_text">Rating: %.1f/10</string>
     <string name="movie_detail_title">%s (%s)</string>
+    <string name="placeholder_movie_plot">This is a placeholder for movie plot, which should be replaced by Movie DB!</string>
+    <string name="placeholder_movie_rating">Rating: 8.9/10</string>
+    <string name="placeholder_movie_title">The Lion King</string>
+    <string name="unavailable_movie_plot">Plot Unavailable</string>
+    <string name="unavailable_movie_title">Title Unavailable</string>
 </resources>
