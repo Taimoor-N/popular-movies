@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,8 +15,11 @@ import com.example.android.popularmovies.databinding.ActivityDetailBinding;
 import com.example.android.popularmovies.model.Movie;
 import com.example.android.popularmovies.model.Review;
 import com.example.android.popularmovies.model.Trailer;
+import com.example.android.popularmovies.utilities.JsonUtils;
+import com.example.android.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity {
@@ -28,6 +32,8 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView mTrailerRecyclerView;
     private RecyclerView mReviewRecyclerView;
 
+    private Movie mMovieData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -36,7 +42,7 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Object movieObj = intent.getSerializableExtra(MainActivity.INTENT_MOVIE_DATA);
-        Movie mMovieData = (Movie) movieObj;
+        mMovieData = (Movie) movieObj;
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
@@ -58,17 +64,15 @@ public class DetailActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.movie_data_not_available), Toast.LENGTH_LONG).show();
         }
 
-        mTrailerAdapter.setTrailerData(getFakeTrailerData());
+        loadTraileraData(mMovieData.getId());
         mReviewAdapter.setReviewData(getFakeReviewData());
     }
 
-    private ArrayList<Trailer> getFakeTrailerData() {
-        ArrayList<Trailer> trailers = new ArrayList<>();
-        trailers.add(new Trailer("Trailer 1", "www.trailer1.com"));
-        trailers.add(new Trailer("Trailer 2", "www.trailer2.com"));
-        trailers.add(new Trailer("Trailer 3", "www.trailer3.com"));
-        trailers.add(new Trailer("Trailer 4", "www.trailer4.com"));
-        return trailers;
+    /**
+     * This method will get trailer data in the background
+     */
+    private void loadTraileraData(int movieId) {
+        new FetchTrailerTask().execute(movieId);
     }
 
     private ArrayList<Review> getFakeReviewData() {
@@ -107,5 +111,32 @@ public class DetailActivity extends AppCompatActivity {
 
     private boolean notNullOrEmpty(String text) {
         return ((text != null) && (!text.equals("")));
+    }
+
+    private class FetchTrailerTask extends AsyncTask<Integer, Void, ArrayList<Trailer>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<Trailer> doInBackground(Integer... movieId) {
+            URL trailerSearchUrl = NetworkUtils.buildTrailerURL(movieId[0]);
+            try {
+                String jsonTrailerResponse = NetworkUtils.getResponseFromHttpUrl(trailerSearchUrl);
+                return JsonUtils.parseTrailerJson(jsonTrailerResponse);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Trailer> trailers) {
+            if (trailers != null) {
+                mTrailerAdapter.setTrailerData(trailers);
+            }
+        }
     }
 }

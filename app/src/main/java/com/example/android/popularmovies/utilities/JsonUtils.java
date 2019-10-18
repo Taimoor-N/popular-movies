@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.utilities;
 
 import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.model.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,4 +62,46 @@ public class JsonUtils {
 
         return movies;
     }
+
+    /**
+     * This method takes a JSON string, parses it and creates the corresponding Trailer list
+     * @param json JSON string
+     * @return ArrayList<Trailer>
+     */
+    public static ArrayList<Trailer> parseTrailerJson(String json) throws JSONException {
+
+        final String TRAILER_RESULTS = "results";
+        final String TRAILER_NAME = "name";
+        final String TRAILER_KEY = "key";
+
+        final String TRAILER_BASE_URL = "https://www.youtube.com/watch?v=";
+
+        String trailerName;
+        String trailerKey;
+        String trailerUrl;
+
+        ArrayList<Trailer> trailers = new ArrayList<>();
+
+        JSONObject trailerJson = new JSONObject(json);
+        JSONArray trailerArray = trailerJson.getJSONArray(TRAILER_RESULTS);
+
+        for (int i = 0; i < trailerArray.length(); i++) {
+            try {
+                JSONObject movieData = trailerArray.getJSONObject(i);
+
+                trailerName = movieData.getString(TRAILER_NAME);
+                trailerKey = movieData.getString(TRAILER_KEY);
+
+                trailerUrl = TRAILER_BASE_URL + trailerKey;
+
+                trailers.add(new Trailer(trailerName, trailerUrl));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return trailers;
+    }
+
 }
