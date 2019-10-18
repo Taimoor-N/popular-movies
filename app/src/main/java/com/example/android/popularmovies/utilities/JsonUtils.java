@@ -18,6 +18,7 @@ public class JsonUtils {
     public static ArrayList<Movie> parseMovieJson(String json) throws JSONException {
 
         final String MOVIE_RESULTS = "results";
+        final String JSON_ID = "id";
         final String JSON_TITLE = "title";
         final String JSON_IMAGE = "poster_path";
         final String JSON_PLOT = "overview";
@@ -26,6 +27,7 @@ public class JsonUtils {
 
         final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
+        int id; //Movie id
         String title; //Movie title
         String image; //Movie image URL
         String plot; //Movie plot
@@ -41,6 +43,7 @@ public class JsonUtils {
             try {
                 JSONObject movieData = movieArray.getJSONObject(i);
 
+                id = movieData.getInt(JSON_ID);
                 title = movieData.getString(JSON_TITLE);
                 image = movieData.getString(JSON_IMAGE);
                 plot = movieData.getString(JSON_PLOT);
@@ -49,7 +52,7 @@ public class JsonUtils {
 
                 String imageURL = IMAGE_BASE_URL + image;
 
-                movies.add(new Movie(title, imageURL, plot, rating, releaseDate));
+                movies.add(new Movie(id, title, imageURL, plot, rating, releaseDate));
 
             } catch (JSONException e) {
                 e.printStackTrace();

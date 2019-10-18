@@ -1,24 +1,36 @@
 package com.example.android.popularmovies.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Movie implements Serializable {
 
+    private int id;
     private String title;
     private String image;
     private String plot;
     private double rating;
     private String releaseDate;
-    private int duration;
+    private ArrayList<Trailer> trailers;
+    private ArrayList<Review> reviews;
 
     public Movie() {}
 
-    public Movie(String title, String image, String plot, double rating, String releaseDate) {
+    public Movie(int id, String title, String image, String plot, double rating, String releaseDate) {
+        this.id = id;
         this.title = title;
         this.image = image;
         this.plot = plot;
         this.rating = rating;
         this.releaseDate = releaseDate;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setTitle(String title) {
@@ -61,4 +73,41 @@ public class Movie implements Serializable {
         return releaseDate;
     }
 
+    public ArrayList<Trailer> getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(ArrayList<Trailer> trailers) {
+        this.trailers = trailers;
+    }
+
+    public ArrayList<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(ArrayList<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    /**
+     * This method adds a trailer to the list of trailers
+     * @param trailer
+     */
+    public void addTrailer(Trailer trailer) {
+        if (trailers == null) {
+            trailers = new ArrayList<>();
+        }
+        trailers.add(trailer);
+    }
+
+    /**
+     * This method adds a review to the list of reviews
+     * @param review
+     */
+    public void addReview(Review review) {
+        if (reviews == null) {
+            reviews = new ArrayList<>();
+        }
+        reviews.add(review);
+    }
 }
