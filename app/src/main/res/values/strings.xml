@@ -4,11 +4,17 @@
     <string name="menu_sort_popular">Sort by Popular</string>
     <string name="menu_sort_top_rated">Sort by Top Rated</string>
     <string name="movie_data_not_available">No movie data available</string>
-    <string name="movie_rating_text">Rating: %.1f/10</string>
     <string name="movie_detail_title">%s (%s)</string>
+    <string name="movie_rating_text">Rating: %.1f/10</string>
     <string name="placeholder_movie_plot">This is a placeholder for movie plot, which should be replaced by Movie DB!</string>
     <string name="placeholder_movie_rating">Rating: 8.9/10</string>
     <string name="placeholder_movie_title">The Lion King</string>
+    <string name="placeholder_review_author">Gimly</string>
+    <string name="placeholder_review_content">‘It Chapter 2’ isn’t as stable or as refined a film as its predecessor, and while it feels lacking by comparison, it’s still far better than most studio horror films. It’s epic, ambitious, crazy, witty and unafraid to go for the heart as well as the throat. As a whole, this adaptation of maybe Stephen King’s greatest work feels singular in the landscape of modern horror cinema: two films built on strong interconnected relationships spread over decades, as sentimental as they are vicious, and executed on the scale of a fantasy epic. They also may be amongst the best adaptations of King’s work, understanding what makes his writing (and this novel in particular) so horrifying and so arresting, the human horror amongst the fantastical. Andy Muschietti aimed big with ‘It’, and even in the moments its reach exceeds its grasp, you’re still so glad it reached so high in the first place.</string>
+    <string name="placeholder_trailer_name">JOKER - Teaser Trailer</string>
+    <string name="review_author_prefix">Author:</string>
+    <string name="review_title">Reviews</string>
+    <string name="trailer_title">Trailers</string>
     <string name="unavailable_movie_plot">Plot Unavailable</string>
     <string name="unavailable_movie_title">Title Unavailable</string>
 </resources>
