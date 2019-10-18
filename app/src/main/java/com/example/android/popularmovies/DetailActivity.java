@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.android.popularmovies.adapters.ReviewAdapter;
@@ -59,33 +60,16 @@ public class DetailActivity extends AppCompatActivity {
         mReviewRecyclerView.setNestedScrollingEnabled(false);
 
         if (mMovieData != null) {
-            populateUI(mMovieData);
+            populateMovieDetails(mMovieData);
         } else {
             Toast.makeText(this, getString(R.string.movie_data_not_available), Toast.LENGTH_LONG).show();
         }
 
-        loadTraileraData(mMovieData.getId());
-        mReviewAdapter.setReviewData(getFakeReviewData());
+        loadTrailers(mMovieData.getId());
+        loadReviews(mMovieData.getId());
     }
 
-    /**
-     * This method will get trailer data in the background
-     */
-    private void loadTraileraData(int movieId) {
-        new FetchTrailerTask().execute(movieId);
-    }
-
-    private ArrayList<Review> getFakeReviewData() {
-        ArrayList<Review> reviews = new ArrayList<>();
-        reviews.add(new Review("John Cena", "A pretty odd choice too undercut every scare in the movie, but I was less disappointed with Chapter Two than everyone else seems to be."));
-        reviews.add(new Review("Johnny Gaddar", "The cards are drawn to the screen with a default elevation, which causes the system to draw a shadow underneath them. You can provide a custom elevation for a card with the card_view:cardElevation attribute. This will draw a more pronounced shadow with a larger elevation, and a lower elevation will result in a lighter shadow."));
-        reviews.add(new Review("Bhutto", "Apps often need to display data in similarly styled containers. These containers are often used in lists to hold each item's information. The system provides the CardView API as an easy way for you show information inside cards that have a consistent look across the platform."));
-        reviews.add(new Review("Ganji", "Android Dev Summit, October 23-24: two days of technical content, directly from the Android team. Sign-up for livestream updates."));
-        reviews.add(new Review("Ricky Ponting", "Cricket is just great! What a great game. Great way to spend your time. Best sport ever. I think I'm the only one in the world with that belief."));
-        return reviews;
-    }
-
-    private void populateUI(Movie movie) {
+    private void populateMovieDetails(Movie movie) {
         if (notNullOrEmpty(movie.getTitle()) && notNullOrEmpty(movie.getReleaseDate())) {
             String title = movie.getTitle();
             String releaseDate = movie.getReleaseDate().substring(0, 4);
@@ -109,8 +93,18 @@ public class DetailActivity extends AppCompatActivity {
                 .into(mBinding.ivMovieImage);
     }
 
-    private boolean notNullOrEmpty(String text) {
-        return ((text != null) && (!text.equals("")));
+    /**
+     * This method will get movie trailers in the background
+     */
+    private void loadTrailers(int movieId) {
+        new FetchTrailerTask().execute(movieId);
+    }
+
+    /**
+     * This method will get movie reviews in the background
+     */
+    private void loadReviews(int movieId) {
+        new FetchReviewTask().execute(movieId);
     }
 
     private class FetchTrailerTask extends AsyncTask<Integer, Void, ArrayList<Trailer>> {
@@ -134,9 +128,72 @@ public class DetailActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Trailer> trailers) {
-            if (trailers != null) {
+            if (trailers != null && trailers.size() > 0) {
+                showMovieTrailers();
                 mTrailerAdapter.setTrailerData(trailers);
+            } else {
+                hideMovieTrailers();
             }
         }
     }
+
+    private class FetchReviewTask extends AsyncTask<Integer, Void, ArrayList<Review>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<Review> doInBackground(Integer... movieId) {
+            URL reviewSearchUrl = NetworkUtils.buildReviewURL(movieId[0]);
+            try {
+                String jsonReviewResponse = NetworkUtils.getResponseFromHttpUrl(reviewSearchUrl);
+                return JsonUtils.parseReviewJson(jsonReviewResponse);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Review> reviews) {
+            if (reviews != null && reviews.size() > 0) {
+                showMovieReviews();
+                mReviewAdapter.setReviewData(reviews);
+            } else {
+                hideMovieReviews();
+            }
+        }
+    }
+
+    private void showMovieTrailers() {
+        mBinding.tvTitleMovieTrailers.setVisibility(View.VISIBLE);
+        mBinding.rvTrailers.setVisibility(View.VISIBLE);
+    }
+
+    private void hideMovieTrailers() {
+        mBinding.tvTitleMovieTrailers.setVisibility(View.INVISIBLE);
+        mBinding.rvTrailers.setVisibility(View.INVISIBLE);
+    }
+
+    private void showMovieReviews() {
+        mBinding.tvTitleMovieReviews.setVisibility(View.VISIBLE);
+        mBinding.rvReviews.setVisibility(View.VISIBLE);
+    }
+
+    private void hideMovieReviews() {
+        mBinding.tvTitleMovieReviews.setVisibility(View.INVISIBLE);
+        mBinding.rvReviews.setVisibility(View.INVISIBLE);
+    }
+
+
+    /*************************************************************************
+     *************************** Utility Functions ***************************
+     *************************************************************************/
+
+    private boolean notNullOrEmpty(String text) {
+        return ((text != null) && (!text.equals("")));
+    }
+
 }

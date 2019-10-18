@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.utilities;
 
 import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.model.Review;
 import com.example.android.popularmovies.model.Trailer;
 
 import org.json.JSONArray;
@@ -102,6 +103,42 @@ public class JsonUtils {
         }
 
         return trailers;
+    }
+
+    /**
+     * This method takes a JSON string, parses it and creates the corresponding Review list
+     * @param json JSON string
+     * @return ArrayList<Review>
+     */
+    public static ArrayList<Review> parseReviewJson(String json) throws JSONException {
+
+        final String REVIEW_RESULTS = "results";
+        final String REVIEW_AUTHOR = "author";
+        final String REVIEW_CONTENT = "content";
+
+        String reviewAuthor;
+        String reviewContent;
+
+        ArrayList<Review> reviews = new ArrayList<>();
+
+        JSONObject reviewJson = new JSONObject(json);
+        JSONArray reviewArray = reviewJson.getJSONArray(REVIEW_RESULTS);
+
+        for (int i = 0; i < reviewArray.length(); i++) {
+            try {
+                JSONObject movieData = reviewArray.getJSONObject(i);
+
+                reviewAuthor = movieData.getString(REVIEW_AUTHOR);
+                reviewContent = movieData.getString(REVIEW_CONTENT);
+
+                reviews.add(new Review(reviewAuthor, reviewContent));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return reviews;
     }
 
 }

@@ -69,6 +69,30 @@ public class NetworkUtils {
     }
 
     /**
+     * Builds the URL to get movie reviews for the provided movie ID
+     * @param movieId Movie ID for which to fetch the reviews
+     * @return The URL to get movie reviews from the Movie DB server
+     */
+    public static URL buildReviewURL(int movieId) {
+        Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                .appendEncodedPath(String.valueOf(movieId))
+                .appendEncodedPath(MOVIEDB_REVIEW_URL_PATH)
+                .encodedQuery(API_KEY)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        Log.v(TAG, "Built Review URI " + url);
+
+        return url;
+    }
+
+    /**
      * (Function taken from Udacity - Android Developer Course)
      * This method returns the entire result from the HTTP response.
      *
