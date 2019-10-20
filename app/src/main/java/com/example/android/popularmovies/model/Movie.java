@@ -11,6 +11,7 @@ public class Movie implements Serializable {
     private String plot;
     private double rating;
     private String releaseDate;
+    private Boolean favourite;
     private ArrayList<Trailer> trailers;
     private ArrayList<Review> reviews;
 
@@ -23,6 +24,7 @@ public class Movie implements Serializable {
         this.plot = plot;
         this.rating = rating;
         this.releaseDate = releaseDate;
+        this.favourite = false;
     }
 
     public int getId() {
@@ -87,6 +89,14 @@ public class Movie implements Serializable {
 
     public void setReviews(ArrayList<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public Boolean getFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(Boolean favourite) {
+        this.favourite = favourite;
     }
 
     /**
