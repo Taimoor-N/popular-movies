@@ -16,6 +16,11 @@ import java.util.ArrayList;
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerAdapterViewHolder> {
 
     private ArrayList<Trailer> mTrailers;
+    private final TrailerAdapterOnClickHandler mClickHandler;
+
+    public interface TrailerAdapterOnClickHandler {
+        void onClick(Trailer trailer);
+    }
 
     private final Context mContext;
 
@@ -23,22 +28,35 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
      * Constructor for TrailerAdapter
      * @param context
      */
-    public TrailerAdapter(Context context) {
+    public TrailerAdapter(Context context, TrailerAdapterOnClickHandler clickHandler) {
         mContext = context;
+        mClickHandler = clickHandler;
     }
 
     /**
      * Cache of the children views for trailer list item.
      */
-    public class TrailerAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class TrailerAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView mTrailerTextView;
 
         public TrailerAdapterViewHolder(View view) {
             super(view);
             mTrailerTextView = view.findViewById(R.id.tv_trailer_name);
+            view.setOnClickListener(this);
         }
 
+        /**
+         * Called when a view has been clicked.
+         *
+         * @param v The view that was clicked.
+         */
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            Trailer trailer = mTrailers.get(adapterPosition);
+            mClickHandler.onClick(trailer);
+        }
     }
 
     /**

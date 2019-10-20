@@ -3,15 +3,13 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:padding="8dp">
 
     <ImageView
         android:id="@+id/iv_trailer"
-        android:layout_width="110dp"
+        android:layout_width="78dp"
         android:layout_height="70dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
+        android:paddingRight="8dp"
         android:src="@drawable/ic_play_circle_filled"/>
 
     <TextView
