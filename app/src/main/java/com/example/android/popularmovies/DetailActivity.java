@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,7 +24,7 @@ import com.squareup.picasso.Picasso;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler {
 
     private ActivityDetailBinding mBinding;
 
@@ -49,7 +50,7 @@ public class DetailActivity extends AppCompatActivity {
 
         mTrailerRecyclerView = findViewById(R.id.rv_trailers);
         mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mTrailerAdapter = new TrailerAdapter(this);
+        mTrailerAdapter = new TrailerAdapter(this, this);
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
         mTrailerRecyclerView.setNestedScrollingEnabled(false);
 
@@ -105,6 +106,16 @@ public class DetailActivity extends AppCompatActivity {
      */
     private void loadReviews(int movieId) {
         new FetchReviewTask().execute(movieId);
+    }
+
+    @Override
+    public void onClick(Trailer trailer) {
+        String trailerUrl = trailer.getTrailerUrl();
+        Uri webpage = Uri.parse(trailerUrl);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     private class FetchTrailerTask extends AsyncTask<Integer, Void, ArrayList<Trailer>> {
@@ -173,8 +184,8 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void hideMovieTrailers() {
-        mBinding.tvTitleMovieTrailers.setVisibility(View.INVISIBLE);
-        mBinding.rvTrailers.setVisibility(View.INVISIBLE);
+        mBinding.tvTitleMovieTrailers.setVisibility(View.GONE);
+        mBinding.rvTrailers.setVisibility(View.GONE);
     }
 
     private void showMovieReviews() {
@@ -183,8 +194,8 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void hideMovieReviews() {
-        mBinding.tvTitleMovieReviews.setVisibility(View.INVISIBLE);
-        mBinding.rvReviews.setVisibility(View.INVISIBLE);
+        mBinding.tvTitleMovieReviews.setVisibility(View.GONE);
+        mBinding.rvReviews.setVisibility(View.GONE);
     }
 
 
