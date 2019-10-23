@@ -12,22 +12,28 @@ import java.util.List;
 @Dao
 public interface TrailerDao {
 
-    @Query("SELECT * FROM trailer ORDER BY trailerName")
-    List<TrailerEntity> loadAllTrailers();
+    @Query("SELECT * FROM Trailer ORDER BY trailerName")
+    List<Trailer> loadAllTrailers();
 
     @Insert
-    void insertTrailer(TrailerEntity trailer);
+    void insertTrailer(Trailer trailer);
+
+    @Insert
+    void insertAllTrailers(List<Trailer> trailer);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void updateTrailer(TrailerEntity trailer);
+    void updateTrailer(Trailer trailer);
 
     @Delete
-    void deleteTrailer(TrailerEntity trailer);
+    void deleteTrailer(Trailer trailer);
 
-    @Query("SELECT * FROM trailer WHERE id = :id")
-    TrailerEntity loadTrailerById(int id);
+    @Query("DELETE FROM trailer WHERE movieId = :movieId")
+    void deleteTrailersForMovie(int movieId);
 
-    @Query("SELECT * FROM trailer WHERE movieId = :id")
-    List<TrailerEntity> loadTrailerByMovieId(int id);
+    @Query("SELECT * FROM Trailer WHERE id = :id")
+    Trailer loadTrailerById(int id);
+
+    @Query("SELECT * FROM Trailer WHERE movieId = :id")
+    List<Trailer> loadTrailersByMovieId(int id);
 
 }

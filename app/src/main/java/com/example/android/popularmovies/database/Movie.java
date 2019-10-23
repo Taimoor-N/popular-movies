@@ -3,8 +3,10 @@ package com.example.android.popularmovies.database;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "movie")
-public class MovieEntity {
+public class Movie implements Serializable {
 
     @PrimaryKey
     private int id;
@@ -15,7 +17,7 @@ public class MovieEntity {
     private String releaseDate;
     private Boolean favourite;
 
-    public MovieEntity(int id, String title, String image, String plot, double rating, String releaseDate, boolean favourite) {
+    public Movie(int id, String title, String image, String plot, double rating, String releaseDate, boolean favourite) {
         this.id = id;
         this.title = title;
         this.image = image;

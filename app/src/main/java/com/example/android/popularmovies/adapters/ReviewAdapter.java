@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.model.Review;
+import com.example.android.popularmovies.database.Review;
 
 import java.util.ArrayList;
 

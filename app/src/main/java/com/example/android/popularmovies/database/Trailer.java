@@ -5,7 +5,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(tableName = "trailer")
-public class TrailerEntity {
+public class Trailer {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -14,13 +14,13 @@ public class TrailerEntity {
     private String trailerUrl;
 
     @Ignore
-    public TrailerEntity(int movieId, String trailerName, String trailerUrl) {
+    public Trailer(int movieId, String trailerName, String trailerUrl) {
         this.movieId = movieId;
         this.trailerName = trailerName;
         this.trailerUrl = trailerUrl;
     }
 
-    public TrailerEntity(int id, int movieId, String trailerName, String trailerUrl) {
+    public Trailer(int id, int movieId, String trailerName, String trailerUrl) {
         this.id = id;
         this.movieId = movieId;
         this.trailerName = trailerName;

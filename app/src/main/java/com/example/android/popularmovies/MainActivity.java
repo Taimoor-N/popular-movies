@@ -14,7 +14,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.adapters.MovieAdapter;
-import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.database.AppDatabase;
+import com.example.android.popularmovies.database.Movie;
 import com.example.android.popularmovies.utilities.JsonUtils;
 import com.example.android.popularmovies.utilities.NetworkUtils;
 
@@ -31,10 +32,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private MovieAdapter mMovieAdapter;
 
+    private AppDatabase mDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
         mRecyclerView = findViewById(R.id.rv_movies);
         mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
@@ -61,10 +66,33 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * @param movie Movie data.
      */
     @Override
-    public void onClick(Movie movie) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(INTENT_MOVIE_DATA, movie);
-        startActivity(intent);
+    public void onClick(final Movie movie) {
+        final Intent intent = new Intent(this, DetailActivity.class);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                final int movieId = movie.getId();
+                final Movie movieInDb = mDb.movieDao().loadMovieById(movieId);
+                if (movieInDb != null) {
+                    final Movie updatedMovieData = new Movie(movieId, movie.getTitle(), movie.getImage(), movie.getPlot(), movie.getRating(), movie.getReleaseDate(), movieInDb.getFavourite());
+                    intent.putExtra(INTENT_MOVIE_DATA, updatedMovieData);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(intent);
+                        }
+                    });
+                } else {
+                    intent.putExtra(INTENT_MOVIE_DATA, movie);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /**

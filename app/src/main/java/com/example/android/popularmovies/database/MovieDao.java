@@ -12,19 +12,19 @@ import java.util.List;
 @Dao
 public interface MovieDao {
 
-    @Query("SELECT * FROM movie ORDER BY title")
-    List<MovieEntity> loadAllMovies();
+    @Query("SELECT * FROM Movie ORDER BY title")
+    List<Movie> loadAllMovies();
 
     @Insert
-    void insertMovie(MovieEntity movie);
+    void insertMovie(Movie movie);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void updateMovie(MovieEntity movie);
+    void updateMovie(Movie movie);
 
     @Delete
-    void deleteMovie(MovieEntity movie);
+    void deleteMovie(Movie movie);
 
-    @Query("SELECT * FROM movie WHERE id = :id")
-    MovieEntity loadMovieById(int id);
+    @Query("SELECT * FROM Movie WHERE id = :id")
+    Movie loadMovieById(int id);
 
 }

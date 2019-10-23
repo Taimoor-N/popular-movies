@@ -5,7 +5,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(tableName = "review")
-public class ReviewEntity {
+public class Review {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -14,13 +14,13 @@ public class ReviewEntity {
     private String content;
 
     @Ignore
-    public ReviewEntity(int movieId, String author, String content) {
+    public Review(int movieId, String author, String content) {
         this.movieId = movieId;
         this.author = author;
         this.content = content;
     }
 
-    public ReviewEntity(int id, int movieId, String author, String content) {
+    public Review(int id, int movieId, String author, String content) {
         this.id = id;
         this.movieId = movieId;
         this.author = author;
