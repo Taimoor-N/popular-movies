@@ -1,7 +1,7 @@
 package com.example.android.popularmovies;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+
+    // Constant for logging
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     public static final String INTENT_MOVIE_DATA = "INTENT_MOVIE_DATA";
     public static final String FAVOURITE_MOVIES = "favourite";
@@ -124,13 +128,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * If stored movie data is changed, observer will set mMovieAdapter to updated
      * data only if sorting criteria is FAVOURITE_MOVIES.
      */
-    private void getMoviesFromDatabase() {
+    private void getMoviesFromViewModel() {
         showMovieResults();
-        final LiveData<List<Movie>> movies = mDb.movieDao().loadAllMovies();
-        movies.observe(this, new Observer<List<Movie>>() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(@Nullable List<Movie> movies) {
                 if (mSortCriteria.equals(FAVOURITE_MOVIES)) {
+                    Log.d(LOG_TAG, "Updating list of tasks from LiveData in ViewModel");
                     mMovieAdapter.setMovieData(new ArrayList<>(movies));
                 }
             }
@@ -189,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 return true;
             case (R.id.action_favourite_movies):
                 mSortCriteria = FAVOURITE_MOVIES;
-                getMoviesFromDatabase();
+                getMoviesFromViewModel();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
