@@ -1,7 +1,10 @@
 package com.example.android.popularmovies;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,10 +24,14 @@ import com.example.android.popularmovies.utilities.NetworkUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
     public static final String INTENT_MOVIE_DATA = "INTENT_MOVIE_DATA";
+    public static final String FAVOURITE_MOVIES = "favourite";
+
+    private String mSortCriteria;
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -51,14 +58,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
-        loadMovieData(NetworkUtils.SORT_POPULAR);
+        mSortCriteria = NetworkUtils.SORT_POPULAR;
+        loadMovieData();
     }
 
     /**
      * This method will get movie data in the background
      */
-    private void loadMovieData(String sortCriteria) {
-        new FetchMovieTask().execute(sortCriteria);
+    private void loadMovieData() {
+        new FetchMovieTask().execute();
     }
 
     /**
@@ -111,7 +119,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    private class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+    /**
+     * This method will load movies from database and observe changes with LiveData.
+     * If stored movie data is changed, observer will set mMovieAdapter to updated
+     * data only if sorting criteria is FAVOURITE_MOVIES.
+     */
+    private void getMoviesFromDatabase() {
+        showMovieResults();
+        final LiveData<List<Movie>> movies = mDb.movieDao().loadAllMovies();
+        movies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                if (mSortCriteria.equals(FAVOURITE_MOVIES)) {
+                    mMovieAdapter.setMovieData(new ArrayList<>(movies));
+                }
+            }
+        });
+    }
+
+    private class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
 
         @Override
         protected void onPreExecute() {
@@ -120,8 +146,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected ArrayList<Movie> doInBackground(String... sortCriteria) {
-            URL movieSearchUrl = NetworkUtils.buildURL(sortCriteria[0]);
+        protected ArrayList<Movie> doInBackground(Void... voids) {
+            URL movieSearchUrl = NetworkUtils.buildURL(mSortCriteria);
             try {
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
                 return JsonUtils.parseMovieJson(jsonMovieResponse);
@@ -152,15 +178,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_sort_popular) {
-            loadMovieData(NetworkUtils.SORT_POPULAR);
-            return true;
-        } else if (id == R.id.action_sort_top_rated) {
-            loadMovieData(NetworkUtils.SORT_TOP_RATED);
-            return true;
+        switch (item.getItemId()) {
+            case (R.id.action_sort_popular):
+                mSortCriteria = NetworkUtils.SORT_POPULAR;
+                loadMovieData();
+                return true;
+            case (R.id.action_sort_top_rated):
+                mSortCriteria = NetworkUtils.SORT_TOP_RATED;
+                loadMovieData();
+                return true;
+            case (R.id.action_favourite_movies):
+                mSortCriteria = FAVOURITE_MOVIES;
+                getMoviesFromDatabase();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
+
 }

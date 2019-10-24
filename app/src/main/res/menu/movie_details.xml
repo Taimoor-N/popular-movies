@@ -5,7 +5,7 @@
     tools:context=".DetailActivity">
 
     <item
-        android:id="@+id/action_favourite"
+        android:id="@+id/action_add_to_favourites"
         android:orderInCategory="1"
         android:icon="@drawable/ic_favourite_star_border"
         android:title=""

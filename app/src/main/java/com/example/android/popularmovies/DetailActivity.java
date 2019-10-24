@@ -216,7 +216,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         inflater.inflate(R.menu.movie_details, menu);
 
         // Initialize the favourite menu item icon
-        MenuItem favouriteItem = menu.findItem(R.id.action_favourite);
+        MenuItem favouriteItem = menu.findItem(R.id.action_add_to_favourites);
         if (favouriteItem != null) {
             if (mMovieData.getFavourite()) {
                 favouriteItem.setIcon(R.drawable.ic_favourite_star_filled);
@@ -231,7 +231,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_favourite) {
+        if (id == R.id.action_add_to_favourites) {
             if (mMovieData.getFavourite()) {
                 mMovieData.setFavourite(false);
                 item.setIcon(R.drawable.ic_favourite_star_border);
