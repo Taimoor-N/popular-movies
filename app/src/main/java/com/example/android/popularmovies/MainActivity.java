@@ -29,11 +29,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
-    // Constant for logging
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String FAVOURITE_MOVIES = "favourite";
+    private static final String SAVE_INSTANCE_SORT_CRITERIA = "save_instance_sort_criteria";
 
     public static final String INTENT_MOVIE_DATA = "INTENT_MOVIE_DATA";
-    public static final String FAVOURITE_MOVIES = "favourite";
 
     private String mSortCriteria;
 
@@ -63,13 +63,32 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setAdapter(mMovieAdapter);
 
         mSortCriteria = NetworkUtils.SORT_POPULAR;
-        loadMovieData();
+        // Gets movie sort criteria from savedInstanceState
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(SAVE_INSTANCE_SORT_CRITERIA)) {
+                mSortCriteria = savedInstanceState.getString(SAVE_INSTANCE_SORT_CRITERIA);
+            }
+        }
+        
+        if (mSortCriteria.equals(FAVOURITE_MOVIES)) {
+            loadMoviesFromViewModel();
+        } else {
+            loadMoviesFromServer();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mSortCriteria != null) {
+            outState.putString(SAVE_INSTANCE_SORT_CRITERIA, mSortCriteria);
+        }
     }
 
     /**
      * This method will get movie data in the background
      */
-    private void loadMovieData() {
+    private void loadMoviesFromServer() {
         new FetchMovieTask().execute();
     }
 
@@ -128,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * If stored movie data is changed, observer will set mMovieAdapter to updated
      * data only if sorting criteria is FAVOURITE_MOVIES.
      */
-    private void getMoviesFromViewModel() {
+    private void loadMoviesFromViewModel() {
         showMovieResults();
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
@@ -186,15 +205,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         switch (item.getItemId()) {
             case (R.id.action_sort_popular):
                 mSortCriteria = NetworkUtils.SORT_POPULAR;
-                loadMovieData();
+                loadMoviesFromServer();
                 return true;
             case (R.id.action_sort_top_rated):
                 mSortCriteria = NetworkUtils.SORT_TOP_RATED;
-                loadMovieData();
+                loadMoviesFromServer();
                 return true;
             case (R.id.action_favourite_movies):
                 mSortCriteria = FAVOURITE_MOVIES;
-                getMoviesFromViewModel();
+                loadMoviesFromViewModel();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
