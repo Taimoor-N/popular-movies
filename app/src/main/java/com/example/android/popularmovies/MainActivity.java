@@ -3,6 +3,7 @@ package com.example.android.popularmovies;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, getRequiredGridCols());
         mRecyclerView.setLayoutManager(layoutManager);
 
         mMovieAdapter = new MovieAdapter(this);
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mSortCriteria = savedInstanceState.getString(SAVE_INSTANCE_SORT_CRITERIA);
             }
         }
-        
+
         if (mSortCriteria.equals(FAVOURITE_MOVIES)) {
             loadMoviesFromViewModel();
         } else {
@@ -159,6 +160,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
             }
         });
+    }
+
+    /**
+     * This function returns the number of columns for grid layout
+     * - 2 columns for portrait and 3 columns for landscape layout
+     * @return number of columns for grid layout
+     */
+    private int getRequiredGridCols() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? 2 : 3;
     }
 
     private class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
