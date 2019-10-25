@@ -16,10 +16,11 @@ import android.widget.Toast;
 
 import com.example.android.popularmovies.adapters.ReviewAdapter;
 import com.example.android.popularmovies.adapters.TrailerAdapter;
+import com.example.android.popularmovies.database.AppDatabase;
 import com.example.android.popularmovies.databinding.ActivityDetailBinding;
-import com.example.android.popularmovies.model.Movie;
-import com.example.android.popularmovies.model.Review;
-import com.example.android.popularmovies.model.Trailer;
+import com.example.android.popularmovies.database.Movie;
+import com.example.android.popularmovies.database.Review;
+import com.example.android.popularmovies.database.Trailer;
 import com.example.android.popularmovies.utilities.JsonUtils;
 import com.example.android.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -38,12 +39,18 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private RecyclerView mReviewRecyclerView;
 
     private Movie mMovieData;
+    private ArrayList<Trailer> mMovieTrailers;
+    private ArrayList<Review> mMovieReviews;
+
+    private AppDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
         Intent intent = getIntent();
         Object movieObj = intent.getSerializableExtra(MainActivity.INTENT_MOVIE_DATA);
@@ -144,6 +151,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         protected void onPostExecute(ArrayList<Trailer> trailers) {
             if (trailers != null && trailers.size() > 0) {
                 showMovieTrailers();
+                mMovieTrailers = trailers;
                 mTrailerAdapter.setTrailerData(trailers);
             } else {
                 hideMovieTrailers();
@@ -174,6 +182,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         protected void onPostExecute(ArrayList<Review> reviews) {
             if (reviews != null && reviews.size() > 0) {
                 showMovieReviews();
+                mMovieReviews = reviews;
                 mReviewAdapter.setReviewData(reviews);
             } else {
                 hideMovieReviews();
@@ -207,7 +216,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         inflater.inflate(R.menu.movie_details, menu);
 
         // Initialize the favourite menu item icon
-        MenuItem favouriteItem = menu.findItem(R.id.action_favourite);
+        MenuItem favouriteItem = menu.findItem(R.id.action_add_to_favourites);
         if (favouriteItem != null) {
             if (mMovieData.getFavourite()) {
                 favouriteItem.setIcon(R.drawable.ic_favourite_star_filled);
@@ -222,13 +231,35 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_favourite) {
+        if (id == R.id.action_add_to_favourites) {
             if (mMovieData.getFavourite()) {
                 mMovieData.setFavourite(false);
                 item.setIcon(R.drawable.ic_favourite_star_border);
+                // Remove Movie, and the corresponding Trailers and Reviews from the database
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDb.movieDao().deleteMovie(mMovieData);
+                        mDb.trailerDao().deleteTrailersForMovie(mMovieData.getId());
+                        mDb.reviewDao().deleteReviewsForMovie(mMovieData.getId());
+                    }
+                });
             } else {
                 mMovieData.setFavourite(true);
                 item.setIcon(R.drawable.ic_favourite_star_filled);
+                // Insert Movie data, trailers and reviews to the database
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDb.movieDao().insertMovie(mMovieData);
+                        if (mMovieTrailers != null && !mMovieTrailers.isEmpty()) {
+                            mDb.trailerDao().insertAllTrailers(mMovieTrailers);
+                        }
+                        if (mMovieReviews != null && !mMovieReviews.isEmpty()) {
+                            mDb.reviewDao().insertAllReviews(mMovieReviews);
+                        }
+                    }
+                });
             }
             return true;
         }

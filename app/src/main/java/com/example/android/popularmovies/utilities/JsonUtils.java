@@ -1,8 +1,8 @@
 package com.example.android.popularmovies.utilities;
 
-import com.example.android.popularmovies.model.Movie;
-import com.example.android.popularmovies.model.Review;
-import com.example.android.popularmovies.model.Trailer;
+import com.example.android.popularmovies.database.Movie;
+import com.example.android.popularmovies.database.Review;
+import com.example.android.popularmovies.database.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +54,7 @@ public class JsonUtils {
 
                 String imageURL = IMAGE_BASE_URL + image;
 
-                movies.add(new Movie(id, title, imageURL, plot, rating, releaseDate));
+                movies.add(new Movie(id, title, imageURL, plot, rating, releaseDate, false));
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -71,12 +71,14 @@ public class JsonUtils {
      */
     public static ArrayList<Trailer> parseTrailerJson(String json) throws JSONException {
 
+        final String ID = "id";
         final String TRAILER_RESULTS = "results";
         final String TRAILER_NAME = "name";
         final String TRAILER_KEY = "key";
 
         final String TRAILER_BASE_URL = "https://www.youtube.com/watch?v=";
 
+        int movieId;
         String trailerName;
         String trailerKey;
         String trailerUrl;
@@ -84,6 +86,8 @@ public class JsonUtils {
         ArrayList<Trailer> trailers = new ArrayList<>();
 
         JSONObject trailerJson = new JSONObject(json);
+        movieId = trailerJson.getInt(ID);
+
         JSONArray trailerArray = trailerJson.getJSONArray(TRAILER_RESULTS);
 
         for (int i = 0; i < trailerArray.length(); i++) {
@@ -95,7 +99,7 @@ public class JsonUtils {
 
                 trailerUrl = TRAILER_BASE_URL + trailerKey;
 
-                trailers.add(new Trailer(trailerName, trailerUrl));
+                trailers.add(new Trailer(movieId, trailerName, trailerUrl));
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -112,16 +116,20 @@ public class JsonUtils {
      */
     public static ArrayList<Review> parseReviewJson(String json) throws JSONException {
 
+        final String ID = "id";
         final String REVIEW_RESULTS = "results";
         final String REVIEW_AUTHOR = "author";
         final String REVIEW_CONTENT = "content";
 
+        int movieId;
         String reviewAuthor;
         String reviewContent;
 
         ArrayList<Review> reviews = new ArrayList<>();
 
         JSONObject reviewJson = new JSONObject(json);
+        movieId = reviewJson.getInt(ID);
+
         JSONArray reviewArray = reviewJson.getJSONArray(REVIEW_RESULTS);
 
         for (int i = 0; i < reviewArray.length(); i++) {
@@ -131,7 +139,7 @@ public class JsonUtils {
                 reviewAuthor = movieData.getString(REVIEW_AUTHOR);
                 reviewContent = movieData.getString(REVIEW_CONTENT);
 
-                reviews.add(new Review(reviewAuthor, reviewContent));
+                reviews.add(new Review(movieId, reviewAuthor, reviewContent));
 
             } catch (JSONException e) {
                 e.printStackTrace();

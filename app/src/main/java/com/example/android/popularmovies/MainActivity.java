@@ -1,11 +1,15 @@
 package com.example.android.popularmovies;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,16 +18,24 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.adapters.MovieAdapter;
-import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.database.AppDatabase;
+import com.example.android.popularmovies.database.Movie;
 import com.example.android.popularmovies.utilities.JsonUtils;
 import com.example.android.popularmovies.utilities.NetworkUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String FAVOURITE_MOVIES = "favourite";
+    private static final String SAVE_INSTANCE_SORT_CRITERIA = "save_instance_sort_criteria";
+
     public static final String INTENT_MOVIE_DATA = "INTENT_MOVIE_DATA";
+
+    private String mSortCriteria;
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageDisplay;
@@ -31,10 +43,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private MovieAdapter mMovieAdapter;
 
+    private AppDatabase mDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
         mRecyclerView = findViewById(R.id.rv_movies);
         mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
@@ -46,14 +62,34 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
-        loadMovieData(NetworkUtils.SORT_POPULAR);
+        mSortCriteria = NetworkUtils.SORT_POPULAR;
+        // Gets movie sort criteria from savedInstanceState
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(SAVE_INSTANCE_SORT_CRITERIA)) {
+                mSortCriteria = savedInstanceState.getString(SAVE_INSTANCE_SORT_CRITERIA);
+            }
+        }
+        
+        if (mSortCriteria.equals(FAVOURITE_MOVIES)) {
+            loadMoviesFromViewModel();
+        } else {
+            loadMoviesFromServer();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mSortCriteria != null) {
+            outState.putString(SAVE_INSTANCE_SORT_CRITERIA, mSortCriteria);
+        }
     }
 
     /**
      * This method will get movie data in the background
      */
-    private void loadMovieData(String sortCriteria) {
-        new FetchMovieTask().execute(sortCriteria);
+    private void loadMoviesFromServer() {
+        new FetchMovieTask().execute();
     }
 
     /**
@@ -61,10 +97,33 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * @param movie Movie data.
      */
     @Override
-    public void onClick(Movie movie) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(INTENT_MOVIE_DATA, movie);
-        startActivity(intent);
+    public void onClick(final Movie movie) {
+        final Intent intent = new Intent(this, DetailActivity.class);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                final int movieId = movie.getId();
+                final Movie movieInDb = mDb.movieDao().loadMovieById(movieId);
+                if (movieInDb != null) {
+                    final Movie updatedMovieData = new Movie(movieId, movie.getTitle(), movie.getImage(), movie.getPlot(), movie.getRating(), movie.getReleaseDate(), movieInDb.getFavourite());
+                    intent.putExtra(INTENT_MOVIE_DATA, updatedMovieData);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(intent);
+                        }
+                    });
+                } else {
+                    intent.putExtra(INTENT_MOVIE_DATA, movie);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /**
@@ -83,7 +142,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    private class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+    /**
+     * This method will load movies from database and observe changes with LiveData.
+     * If stored movie data is changed, observer will set mMovieAdapter to updated
+     * data only if sorting criteria is FAVOURITE_MOVIES.
+     */
+    private void loadMoviesFromViewModel() {
+        showMovieResults();
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                if (mSortCriteria.equals(FAVOURITE_MOVIES)) {
+                    Log.d(LOG_TAG, "Updating list of tasks from LiveData in ViewModel");
+                    mMovieAdapter.setMovieData(new ArrayList<>(movies));
+                }
+            }
+        });
+    }
+
+    private class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
 
         @Override
         protected void onPreExecute() {
@@ -92,8 +170,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected ArrayList<Movie> doInBackground(String... sortCriteria) {
-            URL movieSearchUrl = NetworkUtils.buildURL(sortCriteria[0]);
+        protected ArrayList<Movie> doInBackground(Void... voids) {
+            URL movieSearchUrl = NetworkUtils.buildURL(mSortCriteria);
             try {
                 String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieSearchUrl);
                 return JsonUtils.parseMovieJson(jsonMovieResponse);
@@ -124,15 +202,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_sort_popular) {
-            loadMovieData(NetworkUtils.SORT_POPULAR);
-            return true;
-        } else if (id == R.id.action_sort_top_rated) {
-            loadMovieData(NetworkUtils.SORT_TOP_RATED);
-            return true;
+        switch (item.getItemId()) {
+            case (R.id.action_sort_popular):
+                mSortCriteria = NetworkUtils.SORT_POPULAR;
+                loadMoviesFromServer();
+                return true;
+            case (R.id.action_sort_top_rated):
+                mSortCriteria = NetworkUtils.SORT_TOP_RATED;
+                loadMoviesFromServer();
+                return true;
+            case (R.id.action_favourite_movies):
+                mSortCriteria = FAVOURITE_MOVIES;
+                loadMoviesFromViewModel();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
+
 }
