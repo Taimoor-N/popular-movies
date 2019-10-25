@@ -17,6 +17,7 @@ public class NetworkUtils {
     private static final String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie";
     private static final String MOVIEDB_REVIEW_URL_PATH = "reviews";
     private static final String MOVIEDB_VIDEO_URL_PATH = "videos";
+    private static final String API_KEY = "api_key="; //TODO: Append API key here
 
     public static final String SORT_POPULAR = "popular";
     public static final String SORT_TOP_RATED = "top_rated";
